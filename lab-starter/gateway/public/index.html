@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!-- The BookStore page you see in the browser. The gateway serves this file, and the
+     JavaScript at the bottom calls only the gateway's /api/* routes - never catalog,
+     orders or recommendations directly. That is the API Gateway pattern, from the
+     browser's side. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BookStore — Microservices Workshop</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 820px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { margin-bottom: .2rem; }
+    .sub { color: #666; margin-top: 0; font-size: .9rem; }
+    .panel { border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.25rem; margin: 1rem 0; }
+    .panel h2 { margin-top: 0; font-size: 1.05rem; }
+    .book { display: flex; justify-content: space-between; align-items: center;
+            padding: .5rem 0; border-bottom: 1px solid #f0f0f0; }
+    .book:last-child { border-bottom: none; }
+    button { font-size: .9rem; padding: .35rem .8rem; cursor: pointer; border-radius: 6px;
+             border: 1px solid #888; background: #fff; }
+    button:hover { background: #f4f4f4; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 4px; font-size: .85em; }
+    .degraded { background: #fff6e0; border-color: #e0b44a; }
+    .down { background: #fdecea; border-color: #d9534f; }
+    .tag { font-size: .75rem; color: #555; }
+    ul { margin: .4rem 0; padding-left: 1.2rem; }
+  </style>
+</head>
+<body>
+  <h1>📚 BookStore</h1>
+  <p class="sub">Served by gateway <code>__GATEWAY__</code> — your browser only ever talks to this one service.</p>
+
+  <div class="panel" id="catalog-panel">
+    <h2>Catalog <span class="tag" id="catalog-tag"></span></h2>
+    <div id="books">Loading…</div>
+  </div>
+
+  <div class="panel" id="rec-panel">
+    <h2>Recommended for you <span class="tag" id="rec-tag"></span></h2>
+    <div id="recs">Loading…</div>
+  </div>
+
+  <div class="panel">
+    <h2>Your orders <span class="tag" id="orders-tag"></span></h2>
+    <div id="orders">No orders yet.</div>
+  </div>
+
+<script>
+async function loadBooks() {
+  const panel = document.getElementById('catalog-panel');
+  const el = document.getElementById('books');
+  try {
+    const r = await fetch('/api/books');
+    if (!r.ok) throw new Error((await r.json()).error);
+    const data = await r.json();
+    panel.classList.remove('down');
+    document.getElementById('catalog-tag').textContent = 'from ' + data.servedBy;
+    el.innerHTML = data.books.map(b => `
+      <div class="book">
+        <span><strong>${b.title}</strong><br><small>${b.author} — ₹${b.price}</small></span>
+        <button onclick="buy(${b.id}, '${b.title.replace(/'/g, "\\'")}')">Buy</button>
+      </div>`).join('');
+  } catch (e) {
+    panel.classList.add('down');
+    el.innerHTML = `<strong>The shop cannot open.</strong><br><small>${e.message}</small>
+      <br><small>Catalog is an <em>essential</em> service — there is no useful fallback.</small>`;
+  }
+}
+
+async function loadRecs() {
+  const panel = document.getElementById('rec-panel');
+  const el = document.getElementById('recs');
+  const r = await fetch('/api/recommendations');
+  const data = await r.json();
+
+  if (data.degraded) {
+    panel.classList.add('degraded');
+    document.getElementById('rec-tag').textContent = 'degraded';
+    el.innerHTML = `<em>Recommendations are unavailable right now.</em>
+      <br><small>Reason: ${data.reason}</small>
+      <br><small><strong>The rest of the shop still works.</strong> That is graceful degradation.</small>`;
+  } else {
+    panel.classList.remove('degraded');
+    document.getElementById('rec-tag').textContent = 'from ' + data.servedBy;
+    el.innerHTML = '<ul>' + data.picks.map(p => `<li>${p}</li>`).join('') + '</ul>';
+  }
+}
+
+async function buy(bookId, title) {
+  const el = document.getElementById('orders');
+  try {
+    const r = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookId, title })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error);
+    document.getElementById('orders-tag').textContent = 'from ' + data.servedBy;
+    el.innerHTML = `Order #${data.order.id} placed for <strong>${data.order.title}</strong>.`;
+  } catch (e) {
+    el.innerHTML = `<span style="color:#b3261e">${e.message}</span>`;
+  }
+}
+
+loadBooks();
+loadRecs();
+setInterval(loadRecs, 5000);   // so you SEE it recover when you fix the service
+</script>
+</body>
+</html>

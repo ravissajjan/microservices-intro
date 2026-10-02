@@ -1,0 +1,153 @@
+# The whole bookstore, as Kubernetes sees it.
+#
+# Each service gets TWO objects:
+#   Deployment - "keep N copies of this container running"
+#   Service    - "here is one stable name to reach them by"
+#
+# The Service names below (catalog, orders, recommendations) are exactly the names the
+# gateway calls. That is Kubernetes doing service discovery for you.
+#
+# imagePullPolicy: Never tells Kubernetes "do not go to the internet, the image is
+# already here" - because you loaded it with `minikube image load` in Session 4.
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      labels:
+        app: catalog
+    spec:
+      containers:
+        - name: catalog
+          image: bookstore-catalog:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog
+spec:
+  selector:
+    app: catalog
+  ports:
+    - port: 3001
+      targetPort: 3001
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      containers:
+        - name: orders
+          image: bookstore-orders:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+spec:
+  selector:
+    app: orders
+  ports:
+    - port: 3002
+      targetPort: 3002
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendations
+  template:
+    metadata:
+      labels:
+        app: recommendations
+    spec:
+      containers:
+        - name: recommendations
+          image: bookstore-recommendations:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendations
+spec:
+  selector:
+    app: recommendations
+  ports:
+    - port: 3003
+      targetPort: 3003
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: bookstore-gateway:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            # The same names as in docker-compose.yml. The code did not change at all.
+            - name: CATALOG_URL
+              value: http://catalog:3001
+            - name: ORDERS_URL
+              value: http://orders:3002
+            - name: RECOMMENDATIONS_URL
+              value: http://recommendations:3003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  type: NodePort
+  selector:
+    app: gateway
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080

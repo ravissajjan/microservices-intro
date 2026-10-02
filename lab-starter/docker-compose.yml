@@ -1,0 +1,37 @@
+# Four services, one command.
+#
+# Read the three things that make this microservices rather than "four programs":
+#   1. each service has its own build, its own code and its own data
+#   2. only the GATEWAY publishes a port - the other three are private
+#   3. the gateway finds the others by NAME (catalog, orders, recommendations),
+#      never by IP address. Compose runs a DNS server that resolves those names.
+#
+# The "image:" lines give each build a predictable name, so Session 4 can hand the
+# very same images to Kubernetes.
+
+services:
+  gateway:
+    build: ./gateway
+    image: bookstore-gateway:v1
+    ports:
+      - "8080:8080"          # the ONLY door into the system
+    environment:
+      CATALOG_URL: http://catalog:3001
+      ORDERS_URL: http://orders:3002
+      RECOMMENDATIONS_URL: http://recommendations:3003
+    depends_on:
+      - catalog
+      - orders
+      - recommendations
+
+  catalog:
+    build: ./catalog         # no "ports" - unreachable from your browser
+    image: bookstore-catalog:v1
+
+  orders:
+    build: ./orders
+    image: bookstore-orders:v1
+
+  recommendations:
+    build: ./recommendations
+    image: bookstore-recommendations:v1

@@ -1,0 +1,8 @@
+# Instructor material.
+speaker-content/
+
+# Local noise
+node_modules/
+.env
+*.log
+.DS_Store
