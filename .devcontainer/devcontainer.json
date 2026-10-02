@@ -17,6 +17,8 @@
   "portsAttributes": {
     "8080": { "label": "gateway (the only public door)" }
   },
+  // Docker-in-Docker can leave the legacy iptables FORWARD policy at DROP, which silently blocks traffic between containers on user-defined networks.
+  "postStartCommand": "sudo iptables-legacy -P FORWARD ACCEPT 2>/dev/null || true",
   "customizations": {
     "vscode": {
       "extensions": ["ms-kubernetes-tools.vscode-kubernetes-tools"]
