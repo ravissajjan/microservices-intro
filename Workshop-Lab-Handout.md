@@ -108,6 +108,17 @@ The first run takes about 90 seconds. `-d` starts the containers in the backgrou
 - [ ] Four services are Up
 - [ ] **Only `gateway` has a port** in the PORTS column
 
+The containers take a moment to start listening after Compose returns. Check that the gateway
+can reach catalog before you open the page:
+
+```bash
+curl -s localhost:8080/api/books | head -c 80
+```
+
+- [ ] I see book titles, not `Catalog is unavailable`
+
+If you see the error, wait a few seconds and run the command again.
+
 Open port **8080** in the **Ports** tab.
 
 - [ ] The page looks almost identical to the monolith
@@ -548,6 +559,8 @@ docker compose exec recommendations wget -qO- http://localhost:3003/ok
 | Port 8080 shows nothing | **Ports** tab → check 8080 is forwarded → click the globe icon |
 | `docker compose up` fails on a port | Something else is on 8080: `docker compose down` first |
 | Page is blank / spinner forever | Run `docker compose logs` and look for a crashed service |
+| Catalog panel is red but you did not stop it | The book list loads once per page load. Wait a few seconds, then **refresh** |
+| All four services Up, but catalog is still unreachable | Run `sudo iptables-legacy -P FORWARD ACCEPT`, then refresh |
 | `port is already allocated` on `docker run` | `docker rm -f catalog-solo` and try again |
 | `ErrImageNeverPull` in Kubernetes | You missed a `minikube image load`. Run all four |
 | `ImagePullBackOff` | Same cause — the manifest uses `imagePullPolicy: Never` on purpose |
