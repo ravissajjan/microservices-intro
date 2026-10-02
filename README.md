@@ -11,8 +11,8 @@ new version.
 
 ## Start here
 
-**1. Before the workshop** — read [Before-We-Start.md](Before-We-Start.md). Ten minutes, and it
-ends with a question to bring with you.
+**1. Before the workshop** — read [Part 1 of Workshop-Guide.md](Workshop-Guide.md#part-1--before-we-start).
+Ten minutes, and it ends with a question to bring with you.
 
 **2. In the lab** — work down [Workshop-Lab-Handout.md](Workshop-Lab-Handout.md). Tick every box.
 
@@ -41,11 +41,8 @@ Each session ends with a **5-question quiz**. There is a take-home **assignment*
 
 | File | What it is |
 |---|---|
-| [Before-We-Start.md](Before-We-Start.md) | **Read first.** The vocabulary and what to bring |
+| [Workshop-Guide.md](Workshop-Guide.md) | **Everything but the labs.** Pre-read, full notes, quizzes, answers, revision sheet |
 | [Workshop-Lab-Handout.md](Workshop-Lab-Handout.md) | **The labs.** Every step, with checkboxes and troubleshooting |
-| [Quizzes.md](Quizzes.md) | The four quizzes. Mark your own |
-| [Notes.md](Notes.md) | **The full notes.** Every concept, a glossary, interview questions |
-| [Takeaway-Sheet.md](Takeaway-Sheet.md) | **One page for revision.** Print it |
 | [Assignment.md](Assignment.md) | The take-home assignment — build a fifth service and deploy it |
 | [lab-starter/](lab-starter/README.md) | The bookstore application you will work with |
 
