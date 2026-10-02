@@ -87,7 +87,7 @@ A college wants one system for:
 **✅ CHECKPOINT 1** — two pairs present their grouping. There is no single correct answer, but
 some groupings are clearly wrong.
 
-➡️ **Now take QUIZ 1** in `Quizzes.md` (5 questions).
+➡️ **Now take QUIZ 1** in Part 3 of `Workshop-Guide.md` (5 questions).
 
 ---
 
@@ -505,8 +505,8 @@ kubectl rollout status deployment/catalog
 
 ➡️ **Now take QUIZ 4** (5 questions), then read the assignment brief.
 
-> 📚 **Part 2 of `Quizzes.md`** contains twenty additional questions with answers, for revision
-> before the viva.
+> 📚 **The revision bank in `Workshop-Guide.md`** contains twenty additional questions with
+> answers, for revision before the viva.
 
 ---
 
